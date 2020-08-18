@@ -1,5 +1,4 @@
 import random
-from replies import responses, insults, cat_pics, dog_pics, memid
 import discord
 from discord.ext import commands
 
@@ -16,13 +15,6 @@ class Utility(commands.Cog):
         print('-----')
 
     @commands.command()
-    async def ping(self, ctx):
-        if round(client.latency * 1000 <= 260):
-            await ctx.send(f"Pong! {round(client.latency * 1000)}ms, I'm fast as fuck boi")
-        elif round(client.latency * 1000 > 260):
-            await ctx.send(f"*Crawling*, P...pong! {round(client.latency * 1000)} ms")
-
-    @commands.command()
     @commands.has_permissions(administrator=True)
     async def role(self, ctx, member: discord.Member, role: discord.Role):
         await member.add_roles(role)
@@ -34,28 +26,19 @@ class Utility(commands.Cog):
         await member.remove_roles(role)
         await ctx.send(f"{member.mention} was unrolled! :white_check_mark:")
 
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def kick(self, ctx, user: discord.Member, reason):
+        await user.kick(reason=reason)
+        await ctx.send(f"{user.mention} has been kicked due to: {reason}")
 
-class Fun(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print('Fun Cog Loaded')
-        print('-----')
 
     @commands.command()
-    async def cat(self, ctx):
-        await ctx.send(random.choice(cat_pics))
-
-    @commands.command()
-    async def dog(self, ctx):
-        await ctx.send(random.choice(dog_pics))
-
+    @commands.has_permissions(administrator=True)
+    async def ban(self, ctx, user: discord.Member, reason):
+        await user.ban(reason=reason)
+        await ctx.send(f"{user.mention} has been banned due to: {reason}")
 
 def setup(client):
     client.add_cog(Utility(client))
 
-
-def setup2(client):
-    client.add_cog(Fun(client))
