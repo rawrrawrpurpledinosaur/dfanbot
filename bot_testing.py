@@ -7,7 +7,7 @@ import time
 import badword
 from badword import list
 client = commands.Bot(command_prefix='.')
-
+client.remove_command("help")
 
 def read_token():
     with open("token.txt", "r") as f:
@@ -39,7 +39,8 @@ async def on_member_join(member):
     if guild.system_channel is not None:
         to_send = 'Welcome {0.mention} to {1.name}! :confetti_ball: '.format(member, guild)
         await guild.system_channel.send(to_send)
-    await member.add_role("Bot Tester")
+        role = discord.utils.get(member.server.roles, id="<706108630277292053>")
+        await member.add_roles(member, role)
 
 @client.event
 async def on_member_remove(member):
@@ -52,9 +53,8 @@ async def on_member_remove(member):
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f'Please pass in all required arguments, check  <#{730011031627104256}> out for more details!')
+        await ctx.send(f'Please pass in all required arguments')
         time.sleep(2)
-        channel=706528057401278477
         await ctx.channel.purge(limit=1)
 
 #Cogs
@@ -73,20 +73,16 @@ for filename in os.listdir('./cogs'):
 #commands
 @client.command()
 async def hello(message):
+    """Says hello"""
     await message.channel.send('Hello!')
 
 
 @client.command()
 async def users(message):
+    """Shows number of users in the server"""
     id = client.get_guild(706081251848618045)
     await message.channel.send(f"```Number of Members: {id.member_count}```")
 
-
-@client.command()
-async def mute(ctx, member: discord.Member):
-    role = "Muted"
-    await member.add_roles(role)
-    await ctx.send(f"{member.mention} has been muted. ")
 
 @client.command()
 async def roll(ctx):
@@ -128,10 +124,11 @@ async def clear_error(ctx, error):
 
 @client.command()
 async def ping(ctx):
+    """Use this to ping my ass"""
     if round(client.latency * 1000 <= 260):
-        await ctx.send(f"Pong! {round(client.latency * 1000)}ms, I'm fast as fuck boi")
+        await ctx.send(f"Pong! {round(client.latency * 1000)}ms, I'm fast as fk boi")
     elif round(client.latency * 1000 > 260):
-        await ctx.send(f"*Crawling*, p...pong! {round(client.latency * 1000)} ms")
+        await ctx.send(f"**Crawling**, p...pong! {round(client.latency * 1000)} ms")
 
 
 @client.command()
@@ -149,5 +146,33 @@ async def dog(ctx):
 async def cat(ctx):
     await ctx.send(random.choice(cat_pics))
 
+@client.command()
+async def slap(ctx, member: discord.Member, reason="no reason"):
+    await ctx.send(f'{member.mention} has been slapped by {ctx.author.mention} for {reason}')
 
+class MemberRoles(commands.MemberConverter):
+    async def convert(self, ctx, argument):
+        member = await super().convert(ctx, argument)
+        return [role.name for role in member.roles[1:]] # Remove everyone role!
+
+@client.command()
+async def roles(ctx, *, member: MemberRoles):
+    """Tells you a member's roles."""
+    await ctx.send('I see the following roles: ' + ', '.join(member))
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def repeat(ctx, limit: int):
+    x = limit
+    while x > 0:
+        await ctx.send("@everyone")
+        time.sleep(1)
+        x-=1
+
+@client.command()
+async def help(ctx):
+    embed = discord.Embed(title="Here is a list of all the commands: ", colour=discord.Colour(0xbe5ac6))
+    embed.add_field(name="Moderation commands: ", value=".role, .unrole, .kick, .ban")
+    await ctx.send(embed=embed)
 client.run(read_token())
