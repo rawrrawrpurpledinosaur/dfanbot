@@ -1,2 +1,2 @@
 # dfanbot
-Discord bot
+Discord bot, just for fun
